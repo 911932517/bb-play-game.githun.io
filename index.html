@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蜥脚亚目 · 够叶子</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", sans-serif;
+        }
+
+        body {
+            background: url('1.png') no-repeat center center;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        /* 🔥 主容器：添加动画过渡，可缩小 */
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            transition: all 1s ease; /* 动画时间 */
+            transform-origin: center top; /* 缩放中心点 */
+        }
+
+        /* 🔥 缩小后的样式（大小可在这里调整） */
+        .game-container.shrink {
+            transform: scale(0.85); /* 缩放大小：0.8=缩小到80% */
+            opacity: 1;
+        }
+
+        .top-branch {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 400px;
+            height: 350px;
+            background: url('branch.png') no-repeat top left;
+            background-size: contain;
+            z-index: 2;
+        }
+
+        /* ======================
+           🎯 初始界面文字（和海报1:1对齐）
+           ====================== */
+        /* 顶部中文大标题 */
+        .start-title-cn {
+            position: absolute;
+            left: 50%;
+            top: 18%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            font-weight: bold;
+            color: #000;
+            text-align: center;
+            transition: all 0.5s ease;
+        }
+
+        /* 顶部中文副标题 */
+        .start-subtitle-cn {
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: #000;
+            text-align: center;
+            transition: all 0.5s ease;
+        }
+
+        /* 顶部英文副标题 */
+        .start-subtitle-en {
+            position: absolute;
+            left: 50%;
+            top: 36%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            color: #000;
+            text-align: center;
+            transition: all 0.5s ease;
+        }
+
+        /* ======================
+           🎯 结束画面排版（和海报1:1对齐）
+           ====================== */
+        /* 顶部中文大标题 */
+        .win-title-cn {
+            position: absolute;
+            left: 50%;
+            top: 18%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            font-weight: bold;
+            color: #000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s ease;
+        }
+
+        /* 顶部中文副标题 */
+        .win-subtitle-cn {
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: #000;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s ease;
+        }
+
+        /* 顶部英文副标题 */
+        .win-subtitle-en {
+            position: absolute;
+            left: 50%;
+            top: 36%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            color: #000;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s ease;
+        }
+
+        /* 英文大标题容器 */
+        .win-english-title {
+            position: absolute;
+            left: 50%;
+            top: 58%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            font-size: 80px;
+            font-weight: bold;
+            color: #000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s ease;
+        }
+
+        /* 英文中间插入的正确恐龙 */
+        .center-dino-img {
+            position: relative;
+            width: 450px;
+            height: 400px;
+            background: url('0.png') no-repeat center;
+            background-size: contain;
+            margin: 0 -20px;
+            top: 0px;
+            left: 0px;
+        }
+
+        /* 底部说明文字 */
+        .win-description {
+            position: absolute;
+            left: 50%;
+            top: 88%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            color: #000;
+            line-height: 1.8;
+            text-align: center;
+            width: 90%;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s ease;
+        }
+
+        /* ======================
+           🎮 游戏选项样式
+           ====================== */
+        .dino-options {
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            z-index: 3;
+            transition: all 0.5s ease;
+        }
+
+        .dino-option {
+            width: 120px;
+            height: 120px;
+            border: 3px solid #000;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .dino-option.wrong-select {
+            border: none;
+            transform: scale(3);
+            top: -120px;
+            left: 0px;
+        }
+
+        .dino-option.right-select {
+            border: none;
+            transform: scale(8);
+            top: -10px;
+            left: 0px;
+        }
+
+        .dino-option.hide {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease;
+        }
+
+        .reset-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 25px;
+            font-size: 16px;
+            background: #8b5a2b;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="mainBox">
+        <div class="top-branch"></div>
+
+        <!-- 🔥 初始界面文字（和海报1:1完全对齐） -->
+        <div class="start-title-cn" id="startTitleCn">腕龙</div>
+        <div class="start-subtitle-cn" id="startSubtitleCn">脖子最长、体型最大的恐龙</div>
+        <div class="start-subtitle-en" id="startSubtitleEn">
+            The dinosaurs with the longest necks and largest body sizes
+        </div>
+
+        <!-- 胜利画面 -->
+        <div class="win-title-cn" id="winTitleCn">腕龙</div>
+        <div class="win-subtitle-cn" id="winSubtitleCn">脖子最长、体型最大的恐龙</div>
+        <div class="win-subtitle-en" id="winSubtitleEn">
+            The dinosaurs with the longest necks and largest body sizes
+        </div>
+        
+        <div class="win-english-title" id="winEnglishTitle">
+            Brachiosaurus
+            <div class="center-dino-img"></div>
+            altithorax
+        </div>
+
+        <div class="win-description" id="winDescription">
+            腕龙是蜥臀目腕龙科腕龙属的大型植食性恐龙。形态特征:腕龙体长约26米，高12-16米，平均体重达35吨。它的头部非常小，鼻孔长在头顶上，呈丘状突起。颌部发达，上下共有52颗牙齿，牙齿平直而锋利，形状像勺子，可夹断嫩树枝。其最显著的特征是拥有像长颈鹿一样的长颈，脖子长约6米，同时前肢比后肢长且粗壮，前脚掌到肩膀足有6米，走路时四肢着地，身体沿肩部向后倾斜。
+        </div>
+
+        <div class="dino-options" id="optionsBox">
+            <div class="dino-option" data-type="wrong" style="background-image: url('8.png');"></div>
+            <div class="dino-option" data-type="wrong" style="background-image: url('9.png');"></div>
+            <div class="dino-option" data-type="wrong" style="background-image: url('7.png');"></div>
+            <div class="dino-option" data-type="right" style="background-image: url('0.png');"></div>
+        </div>
+
+        <button class="reset-btn" onclick="resetGame()">重新开始</button>
+    </div>
+
+    <script>
+        const mainBox = document.getElementById('mainBox');
+        const options = document.querySelectorAll('.dino-option');
+        const optionsBox = document.getElementById('optionsBox');
+        const startTitleCn = document.getElementById('startTitleCn');
+        const startSubtitleCn = document.getElementById('startSubtitleCn');
+        const startSubtitleEn = document.getElementById('startSubtitleEn');
+        const winTitleCn = document.getElementById('winTitleCn');
+        const winSubtitleCn = document.getElementById('winSubtitleCn');
+        const winSubtitleEn = document.getElementById('winSubtitleEn');
+        const winEnglishTitle = document.getElementById('winEnglishTitle');
+        const winDescription = document.getElementById('winDescription');
+        let hasAnswered = false;
+
+        function resetGame() {
+            hasAnswered = false;
+            mainBox.classList.remove('shrink'); // 重置缩放
+            
+            // 隐藏所有胜利元素
+            winTitleCn.style.opacity = 0;
+            winTitleCn.style.visibility = 'hidden';
+            winSubtitleCn.style.opacity = 0;
+            winSubtitleCn.style.visibility = 'hidden';
+            winSubtitleEn.style.opacity = 0;
+            winSubtitleEn.style.visibility = 'hidden';
+            winEnglishTitle.style.opacity = 0;
+            winEnglishTitle.style.visibility = 'hidden';
+            winDescription.style.opacity = 0;
+            winDescription.style.visibility = 'hidden';
+
+            // 恢复初始界面
+            optionsBox.style.opacity = 1;
+            optionsBox.style.visibility = 'visible';
+            startTitleCn.style.opacity = 1;
+            startTitleCn.style.visibility = 'visible';
+            startSubtitleCn.style.opacity = 1;
+            startSubtitleCn.style.visibility = 'visible';
+            startSubtitleEn.style.opacity = 1;
+            startSubtitleEn.style.visibility = 'visible';
+            
+            options.forEach(opt => {
+                opt.classList.remove('wrong-select');
+                opt.classList.remove('right-select');
+                opt.classList.remove('hide');
+            });
+        }
+
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                if (hasAnswered) return;
+                options.forEach(opt => {
+                    opt.classList.remove('wrong-select');
+                    opt.classList.remove('right-select');
+                });
+
+                if (option.dataset.type === 'right') {
+                    option.classList.add('right-select');
+                    hasAnswered = true;
+
+                    // 🔥 执行界面缩小动画
+                    setTimeout(() => {
+                        mainBox.classList.add('shrink');
+                    }, 500);
+
+                    // 初始界面消失
+                    setTimeout(() => {
+                        optionsBox.style.opacity = 0;
+                        optionsBox.style.visibility = 'hidden';
+                        startTitleCn.style.opacity = 0;
+                        startTitleCn.style.visibility = 'hidden';
+                        startSubtitleCn.style.opacity = 0;
+                        startSubtitleCn.style.visibility = 'hidden';
+                        startSubtitleEn.style.opacity = 0;
+                        startSubtitleEn.style.visibility = 'hidden';
+                    }, 800);
+
+                    // 显示结束画面（在缩小界面上）
+                    setTimeout(() => { winTitleCn.style.visibility = 'visible'; winTitleCn.style.opacity = 1; }, 1000);
+                    setTimeout(() => { winSubtitleCn.style.visibility = 'visible'; winSubtitleCn.style.opacity = 1; }, 1300);
+                    setTimeout(() => { winSubtitleEn.style.visibility = 'visible'; winSubtitleEn.style.opacity = 1; }, 1600);
+                    setTimeout(() => { winEnglishTitle.style.visibility = 'visible'; winEnglishTitle.style.opacity = 1; }, 1900);
+                    setTimeout(() => { winDescription.style.visibility = 'visible'; winDescription.style.opacity = 1; }, 2200);
+                } else {
+                    option.classList.add('wrong-select');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
